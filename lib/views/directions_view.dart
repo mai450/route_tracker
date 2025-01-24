@@ -6,22 +6,28 @@ import 'package:route_tracker/cubits/get_place_details_cubit/get_place_details_c
 import 'package:route_tracker/cubits/search_cubit/search_cubit.dart';
 import 'package:route_tracker/util/api_service.dart';
 import 'package:route_tracker/util/google_map_services.dart';
-import 'package:route_tracker/widgets/search_view_body.dart';
+import 'package:route_tracker/widgets/make_route_view_body.dart';
 
-class SearchView extends StatelessWidget {
-  const SearchView({
+class DirectionsView extends StatelessWidget {
+  const DirectionsView({
     super.key,
     required this.locationData,
     required this.polylines,
     required this.googleMapController,
     required this.markers,
     required this.updateMarkers,
+    required this.updatePolylines,
+    required this.isRouteFocused,
+    required this.routeDetails,
   });
   final LatLng locationData;
   final Set<Marker> markers;
   final Function(Set<Marker>) updateMarkers;
+  final Function(Set<Polyline>) updatePolylines;
   final Set<Polyline> polylines;
   final GoogleMapController googleMapController;
+  final bool isRouteFocused;
+  final Function(String duration, String distance) routeDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +45,15 @@ class SearchView extends StatelessWidget {
                   GoogleMapServices(apiService: ApiService(dio: Dio()))),
             ),
           ],
-          child: SearchViewBody(
+          child: MakeRouteViewBody(
+            routeDetails: routeDetails,
+            updatePolylines: updatePolylines,
             locationData: locationData,
             googleMapController: googleMapController,
             polylines: polylines,
             markers: markers,
             updateMarkers: updateMarkers,
+            isRouteFocused: isRouteFocused,
           ),
         ),
       ),

@@ -21,7 +21,7 @@ class ApiService {
     var response = await dio.post(
         'https://routes.googleapis.com/directions/v2:computeRoutes',
         options: Options(headers: header),
-        data: body);
+        data: body.toJson());
     return response.data;
   }
 }

@@ -1,12 +1,11 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:route_tracker/util/location_service.dart';
-import 'package:route_tracker/views/search_view.dart';
-import 'package:route_tracker/widgets/custom_text_field.dart';
+import 'package:route_tracker/util/map_services.dart';
+import 'package:route_tracker/views/directions_view.dart';
+import 'package:route_tracker/widgets/custom_floating_action_button.dart';
+import 'package:route_tracker/widgets/route_details_googlemap_view.dart';
+import 'package:route_tracker/widgets/search_container_google_map_view.dart';
 
 class GoogleMapView extends StatefulWidget {
   const GoogleMapView({super.key});
@@ -17,100 +16,123 @@ class GoogleMapView extends StatefulWidget {
 
 class _GoogleMapViewState extends State<GoogleMapView> {
   late CameraPosition initialcCameraPosition;
-  late GoogleMapController googleMapController;
+  GoogleMapController? googleMapController;
   late LocationService locationService;
-  late LocationData locationData;
+  late MapServices mapServices;
+  LatLng? currentLocation;
   Set<Marker> marker = {};
+  Set<Marker> directionsMarker = {};
   Set<Polyline> polylines = {};
+  bool isRouteFocused = false;
+  String? duration;
+  String? distance;
+
   @override
   void initState() {
     super.initState();
     initialcCameraPosition = CameraPosition(target: LatLng(0, 0), zoom: 1);
     locationService = LocationService();
+    mapServices = MapServices(context: context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          GoogleMap(
-            zoomControlsEnabled: false,
-            markers: marker,
-            polylines: polylines,
-            onMapCreated: (controller) {
-              googleMapController = controller;
-              updateMyCurrentLocation();
-            },
-            initialCameraPosition: initialcCameraPosition,
-          ),
-          Positioned(
-            top: 40,
-            left: 20,
-            right: 20,
-            child: GestureDetector(
-              onTap: () {
+        body: Stack(
+          children: [
+            GoogleMap(
+              zoomControlsEnabled: false,
+              markers: marker,
+              polylines: polylines,
+              onMapCreated: (controller) {
+                googleMapController = controller;
+                updateMyCurrentLocation();
+              },
+              initialCameraPosition: initialcCameraPosition,
+            ),
+            if (googleMapController != null && currentLocation != null)
+              SearchContainer(
+                googleMapController: googleMapController!,
+                polylines: polylines,
+                locationData: currentLocation!,
+                markers: marker,
+                updateMarkers: updateMarkers,
+                distance: (value) {
+                  distance = value;
+                },
+                duration: (value) {
+                  duration = value;
+                },
+              ),
+            if (duration != null && distance != null)
+              RouteDetails(
+                distance: distance!,
+                duration: duration!,
+              ),
+          ],
+        ),
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            CustomFloatingActionButton(
+              heroTag: 'getLocation',
+              btnColor: Colors.grey.shade100,
+              icon: Icons.location_pin,
+              iconColor: Colors.black54,
+              onPressed: () {
+                marker.clear();
+                polylines.clear();
+                distance = null;
+                duration = null;
+                updateMyCurrentLocation();
+              },
+            ),
+            CustomFloatingActionButton(
+              heroTag: 'makeRoute',
+              btnColor: Colors.green.shade700,
+              icon: Icons.directions,
+              shape: false,
+              onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (BuildContext context) => SearchView(
-                      displayRoutes: displayRoutes,
-                      locationData: locationData,
+                    builder: (BuildContext context) => DirectionsView(
+                      routeDetails: updateRouteDetails,
+                      isRouteFocused: isRouteFocused,
+                      updatePolylines: updatePolylines,
+                      updateMarkers: updateMarkers,
+                      googleMapController: googleMapController!,
+                      locationData: currentLocation!,
+                      markers: marker,
+                      polylines: polylines,
                     ),
                   ),
                 );
               },
-              child: Container(
-                padding: EdgeInsets.all(12),
-                height: 50,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Search here..',
-                    style: TextStyle(color: Colors.black, fontSize: 14),
-                  ),
-                ),
-              ),
             ),
-          )
-        ],
-      ),
-    );
+          ],
+        ));
   }
 
-  void displayRoutes(List<LatLng> points) {
-    Polyline route = Polyline(
-        color: Colors.blue,
-        width: 5,
-        startCap: Cap.roundCap,
-        endCap: Cap.roundCap,
-        polylineId: PolylineId('routs'),
-        points: points);
-    polylines.add(route);
-
-    LatLngBounds bounds = getatLngBounds(points);
-
-    googleMapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
-    setState(() {});
-  }
-
-  updateMyCurrentLocation() async {
+  void updateMyCurrentLocation() async {
     try {
-      locationData = await locationService.getMyLocation();
-      LatLng currentLocation =
-          LatLng(locationData.latitude!, locationData.longitude!);
-      var myUpdateCamera = CameraPosition(target: currentLocation, zoom: 15);
-      var myMarker = Marker(markerId: MarkerId('1'), position: currentLocation);
+      locationService.getRealTimeLocation(
+        (locationData) {
+          if (!isRouteFocused) {
+            currentLocation =
+                LatLng(locationData.latitude!, locationData.longitude!);
+            var myUpdateCamera =
+                CameraPosition(target: currentLocation!, zoom: 15);
+            var myMarker =
+                Marker(markerId: MarkerId('1'), position: currentLocation!);
 
-      googleMapController
-          .animateCamera(CameraUpdate.newCameraPosition(myUpdateCamera));
-      marker.add(myMarker);
-      setState(() {});
+            googleMapController
+                ?.animateCamera(CameraUpdate.newCameraPosition(myUpdateCamera));
+            marker.add(myMarker);
+            setState(() {});
+          }
+        },
+      );
     } on EnableLocationException catch (e) {
       // TODO
     } on PermisssionLocationException catch (e) {
@@ -120,20 +142,22 @@ class _GoogleMapViewState extends State<GoogleMapView> {
     }
   }
 
-  LatLngBounds getatLngBounds(List<LatLng> points) {
-    var southWestLat = points.first.latitude;
-    var southWestLng = points.first.longitude;
-    var nourthEastLat = points.first.latitude;
-    var nourthEastLng = points.first.longitude;
+  void updateMarkers(Set<Marker> updatedMarkers) {
+    setState(() {
+      marker = updatedMarkers;
+    });
+  }
 
-    for (var point in points) {
-      southWestLat = min(southWestLat, point.latitude);
-      southWestLng = min(southWestLng, point.longitude);
-      nourthEastLat = max(nourthEastLat, point.latitude);
-      nourthEastLng = max(nourthEastLng, point.longitude);
-    }
-    return LatLngBounds(
-        southwest: LatLng(southWestLat, southWestLng),
-        northeast: LatLng(nourthEastLat, nourthEastLng));
+  void updatePolylines(Set<Polyline> updatedPolylines) {
+    setState(() {
+      polylines = updatedPolylines;
+    });
+  }
+
+  void updateRouteDetails(String newDuration, String newDistance) {
+    setState(() {
+      duration = newDuration;
+      distance = newDistance;
+    });
   }
 }
