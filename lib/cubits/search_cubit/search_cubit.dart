@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:route_tracker/models/place_autocomplete_model/place_autocomplete_model.dart';
-import 'package:route_tracker/util/google_map_services.dart';
+import 'package:route_tracker/services/google_map_services.dart';
 
 part 'search_state.dart';
 

@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:route_tracker/cubits/get_place_details_cubit/get_place_details_cubit.dart';
 import 'package:route_tracker/cubits/search_cubit/search_cubit.dart';
-import 'package:route_tracker/util/api_service.dart';
-import 'package:route_tracker/util/google_map_services.dart';
+import 'package:route_tracker/services/api_service.dart';
+import 'package:route_tracker/services/google_map_services.dart';
 import 'package:route_tracker/widgets/make_route_view_body.dart';
 
 class DirectionsView extends StatelessWidget {

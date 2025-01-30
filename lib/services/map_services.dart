@@ -11,7 +11,7 @@ import 'package:route_tracker/models/body_routes_service_model/lat_lng.dart';
 import 'package:route_tracker/models/body_routes_service_model/location.dart';
 import 'package:route_tracker/models/body_routes_service_model/origin.dart';
 import 'package:route_tracker/models/routes_model/routes_model.dart';
-import 'package:route_tracker/util/location_service.dart';
+import 'package:route_tracker/services/location_service.dart';
 
 class MapServices {
   final BuildContext context;

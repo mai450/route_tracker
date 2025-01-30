@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:route_tracker/util/location_service.dart';
-import 'package:route_tracker/util/map_services.dart';
+import 'package:route_tracker/services/location_service.dart';
+import 'package:route_tracker/services/map_services.dart';
 import 'package:route_tracker/views/directions_view.dart';
 import 'package:route_tracker/widgets/custom_floating_action_button.dart';
 import 'package:route_tracker/widgets/route_details_googlemap_view.dart';

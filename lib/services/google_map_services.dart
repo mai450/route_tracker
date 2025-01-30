@@ -1,6 +1,6 @@
 import 'package:route_tracker/models/place_autocomplete_model/place_autocomplete_model.dart';
 import 'package:route_tracker/models/place_details_model/place_details_model.dart';
-import 'package:route_tracker/util/api_service.dart';
+import 'package:route_tracker/services/api_service.dart';
 
 class GoogleMapServices {
   final ApiService apiService;

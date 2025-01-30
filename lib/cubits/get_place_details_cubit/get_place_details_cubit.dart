@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:route_tracker/models/place_details_model/place_details_model.dart';
-import 'package:route_tracker/util/api_service.dart';
-import 'package:route_tracker/util/google_map_services.dart';
+import 'package:route_tracker/services/api_service.dart';
+import 'package:route_tracker/services/google_map_services.dart';
 
 part 'get_place_details_state.dart';
 

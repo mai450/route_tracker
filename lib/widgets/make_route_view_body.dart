@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:route_tracker/cubits/search_cubit/search_cubit.dart';
-import 'package:route_tracker/util/map_services.dart';
+import 'package:route_tracker/services/map_services.dart';
 import 'package:route_tracker/widgets/custom_text_field.dart';
 import 'package:route_tracker/widgets/search_list.dart';
 import 'package:route_tracker/widgets/traval_mode_list.dart';

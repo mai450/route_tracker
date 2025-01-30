@@ -1,6 +1,6 @@
 import 'package:route_tracker/models/body_routes_service_model/body_routes_service_model.dart';
 import 'package:route_tracker/models/routes_model/routes_model.dart';
-import 'package:route_tracker/util/api_service.dart';
+import 'package:route_tracker/services/api_service.dart';
 
 class RoutesService {
   final ApiService apiService;
